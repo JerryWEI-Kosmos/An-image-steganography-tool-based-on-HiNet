@@ -1,0 +1,152 @@
+
+    body {
+      padding-top: 95px;
+      font-family: Arial, sans-serif;
+      color: #333;
+      background-color: #ffffff;
+    }
+
+    header {
+      position: fixed;
+      top: 10px;
+      left: 7px;
+      width: 98%;
+      z-index: 1000;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px;
+      background-color: #FE6F07;
+      height: 80px;
+      margin: 0 auto;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+      border-radius: 5px 5px 5px 5px;
+    }
+
+    .logo img {
+      height: 60px;
+    }
+
+    .logo div {
+      display: inline-block;
+      margin-left: auto;
+      font-size: 20px;
+    }
+
+    .logo h1 {
+      color: #FFFFFF;
+      font-weight: bold;
+      margin: 0;
+      padding: 10px 0;
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+    }
+
+    .default-demo {
+      background-color: #f7f7f7;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      padding: 20px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .info-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      margin-top: 20px;
+    }
+
+    .info-item {
+      flex: 1 1 50%;
+      margin-bottom: 10px;
+    }
+
+    .info-item label {
+      display: block;
+      color: #333;
+    }
+
+    .info-item span {
+      display: block;
+      color: #666;
+    }
+
+    button {
+      background-color: #dcdcdc;
+      color: rgb(0, 0, 0);
+      border: none;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      padding: 10px 20px;
+      margin: 0 10px;
+      cursor: pointer;
+      width: 320px;
+      height: 80px;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+    }
+
+    button:hover {
+      background-color: #888888;
+    }
+
+    .buttons {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-top: 3%;
+      transition: all 0.5s ease;
+    }
+
+    .buttons.at-bottom {
+      position: relative;
+      bottom: auto;
+      left: auto;
+      right: auto;
+    }
+
+    .demo {
+      left: 0;
+      width: 98.8%;
+      height: auto;
+      margin: 20px 0;
+      padding: 10px;
+      background-color: #eeeeee;
+      border-radius: 5px 5px 5px 5px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    main {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      height: calc(100vh - 80px);
+    }
+
+    .tabbrowser-tabs::before {
+      content: url('D:\Study\GraduationProjection\ProjectFiles\HiNet-main\Web\6278_box_config_tool_icon.ico');
+      display: inline-block;
+      vertical-align: middle;
+    }
+
+    footer {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 99.5%;
+      background-color: #FE6F07;
+      z-index: 1000;
+    }
+
+    .bottom-bar {
+      text-align: center;
+      padding: 10px 0;
+      line-height: 10px;
+      height: 40px;
+      width: 100%;
+      color: white;
+      font-weight: bold;
+      box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.5);
+      border-radius: 0 0 5px 5px;
+    }

@@ -1,0 +1,52 @@
+<template>
+    <div>
+      <h2>????</h2>
+      <select v-model="selectedOperation">
+        <option disabled value="">?????</option>
+        <option value="encrypt_decrypt">??/??</option>
+        <option value="folder_operations">?????</option>
+        <option value="config">????</option>
+        <option value="text_encode_decode">?????</option>
+      </select>
+  
+      <div v-if="selectedOperation">
+        <input v-model="requestData.option" placeholder="?????/???" v-if="selectedOperation === 'encrypt_decrypt'">
+        <input v-model="requestData.action" placeholder="???????/???" v-if="selectedOperation === 'folder_operations'">
+        <!-- ?????????????????? -->
+  
+        <button @click="sendRequest">????</button>
+      </div>
+  
+      <div v-if="response">
+        <h3>??</h3>
+        <pre>{{ response }}</pre>
+      </div>
+    </div>
+  </template>
+  
+  <script>
+  import axios from 'axios';
+  
+  export default {
+    data() {
+      return {
+        selectedOperation: '',
+        requestData: {},
+        response: null,
+      };
+    },
+    methods: {
+      async sendRequest() {
+        const endpoint = '/api'; // ??API?URL
+        try {
+          const res = await axios.post(endpoint, this.requestData);
+          this.response = res.data;
+        } catch (error) {
+          console.error('????:', error);
+          this.response = error.response ? error.response.data : '?????????';
+        }
+      }
+    }
+  }
+  </script>
+  

@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>图像隐写工具</title>
+  <link rel="icon" href="D:\Study\GraduationProjection\ProjectFiles\HiNet-main\Web\6278_box_config_tool_icon.ico"
+    type="icon">
+  <link rel="stylesheet" href="web_css.css">
+</head>
+
+<body>
+  <div id="app">
+    <header>
+      <div class="logo">
+        <h1 style="color:white">图像隐写工具</h1>
+      </div>
+      <button @click="toggleSettings" style="width: 120px; height: 35px; line-height: 9px; text-align: center; background-color: #dcdcdc;
+               border: 1px solid #dcdcdc; box-shadow: 0 3px 3px rgba(0, 0, 0, 0.2); border-radius: 4px; text-transform: uppercase; 
+              color: #000000; font-weight: bold; padding: 0 15px; line-height: 28px;">参数设置</button>
+    </header>
+
+    <main style="display: flex; flex-direction: column; height: calc(100vh - 80px);">
+
+      <div v-if="selectedDemo==0" class="default-demo" style="margin: 20px;">
+        <h2 style="color: #FE6F07; text-align: center;">工具简介</h2>
+        <div class="info-container" style="margin-top: 20px;">
+          <div class="info-item">
+            <label for="demo-title">前端框架:VUE 2.0</label>
+          </div>
+          <div class="info-item">
+            <label for="demo-description">后端架构:Python-Flask</label>
+          </div>
+          <div class="info-item">
+            <label for="demo-date">更新日期:</label>
+            <span id="demo-date">2024-04-07</span>
+          </div>
+        </div>
+      </div>
+      <div v-if="showSettings">
+        <!-- 设置界面的内容 -->
+        <div class="demo">
+          <p v-if="showSettings">当前训练参数:</p>
+          <div class="param-list" style="display: flex; flex-wrap: wrap; justify-content: space-between;">
+            <div v-for="(value, key) in settingsParams" :key="key"
+              style="width: 32%; margin: 5px; box-sizing: border-box;">
+              <p style="margin: 0;">{{ key }}: {{ value }}</p>
+            </div>
+          </div>
+          <div style="text-align: center; margin-top: 20px;">
+            <p>选择参数并输入新值</p>
+            <select v-model="selectedParamKey" style="width: 125px; height: 40px;">
+              <option v-for="key in Object.keys(settingsParams)" :key="key" :value="key">{{ key }}</option>
+            </select>
+            <input v-model="selectedParamValue" type="text" style="width: 120px; height: 35px; margin-left: 10px;" />
+          </div>
+          <div style="text-align: center;">
+            <button @click="saveSettings" style="width: 150px;height: 45px; margin-top: 20px;border: 1px solid #dcdcdc; box-shadow: 0 3px 3px rgba(0, 0, 0, 0.2); border-radius: 4px; text-transform: uppercase; 
+            color: #000000; font-weight: bold;">保存参数</button>
+            <button @click="backToMain" style="width: 150px;height: 45px; margin-top: 20px;border: 1px solid #dcdcdc; box-shadow: 0 3px 3px rgba(0, 0, 0, 0.2); border-radius: 4px; text-transform: uppercase; 
+            color: #000000; font-weight: bold;">返回主页</button>
+            <button @click="startTraining" style="width: 150px;height: 45px;border: 1px solid #dcdcdc; box-shadow: 0 3px 3px rgba(0, 0, 0, 0.2); border-radius: 4px; text-transform: uppercase; 
+            color: #000000; font-weight: bold;">开始训练</button>
+          </div>
+        </div>
+      </div>
+      <!-- 根据selectedDemo显示不同的内容 -->
+      <div v-else style="height: 100%">
+        <div class="demo" v-if="selectedDemo">
+          <!--图像隐写部分-->
+          <div v-if="selectedDemo==1" style="flex: 1; display: flex; flex-direction: column;">
+            <div style="text-align: center; margin-bottom: 10px;">
+              <button @click="ImageEncrypt" style="width: 150px;height: 45px;border: 1px solid #dcdcdc; box-shadow: 0 3px 3px rgba(0, 0, 0, 0.2); border-radius: 4px; text-transform: uppercase; 
+              color: #000000; font-weight: bold;">隐写</button>
+              <button @click="ImageDecrypt" style="width: 150px;height: 45px;border: 1px solid #dcdcdc; box-shadow: 0 3px 3px rgba(0, 0, 0, 0.2); border-radius: 4px; text-transform: uppercase; 
+              color: #000000; font-weight: bold;">解密</button>
+            </div>
+            <br></br>
+            <div>
+              当前状态:{{ encryptResponse?.message ||'等待输出结果...'}}
+              <br></br>
+              隐写结果:
+              <div style="flex: 1; display: flex; flex-wrap: wrap; padding: 5px;">
+                <div v-for="item in encryptResponse?.result_paths" :key="item"
+                  style="position: relative; display: inline-block; overflow: hidden; width: 200px; margin: 5px; transition: transform 0.3s ease;">
+                  <img :src="`http://127.0.0.1:5000/${item}`" alt="Steganographic Image"
+                    style="width: 100%; height: auto; transition: transform 0.3s ease;" @mouseover="scaleImage"
+                    @mouseout="restoreImage">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!--文件管理部分-->
+          <div v-if="selectedDemo === 2">
+            <div style="display: flex; justify-content: center; margin-bottom: 25px;">
+              <select v-model="selectedFolder" style="width: 85px; height: 35px;">
+                <option value="1">covers</option>
+                <option value="2">secrets</option>
+                <option value="3">datas</option>
+                <option value="4">stegs</option>
+              </select>
+              <button style="width: 150px;height: 35px; margin-left: 10px;
+              border: 1px solid #dcdcdc; box-shadow: 0 3px 3px rgba(0, 0, 0, 0.2); border-radius: 4px; text-transform: uppercase; 
+             color: #000000; font-weight: bold; padding: 0 15px; line-height: 28px;"
+                @click="showFolder">查看文件目录</button>
+            </div>
+            <div class="image-display" v-if="imageList.length > 0"
+              style="display: flex; flex-wrap: wrap; padding: 5px;">
+              <!-- 图片展示区域 -->
+              <div v-for="(item, index) in imageList" :key="index"
+                style="position: relative; display: inline-block; overflow: hidden; width: 200px; margin: 5px; transition: transform 0.3s ease;">
+                <img :src="`http://127.0.0.1:5000/${item}`" alt="Image"
+                  style="width: 100%; height: auto; transition: transform 0.3s ease;" @mouseover="scaleImage"
+                  @mouseout="restoreImage">
+              </div>
+              <div style="width: 100%; text-align: center;">
+                <select v-model="selectedImageIndex" style="width: 120px; height: 35px;">
+                  <!-- 选项将根据图片数量动态生成 -->
+                  <option v-for="(image, index) in imageList" :key="index" :value="index">{{ index + 1 }}</option>
+                </select>
+                <!-- 删除文件按钮 -->
+                <button @click="deleteFile(selectedImageIndex)" style="width: 150px;height: 45px; margin-left: 10px;border: 1px solid #dcdcdc; box-shadow: 0 3px 3px rgba(0, 0, 0, 0.2); border-radius: 4px; text-transform: uppercase; 
+                  color: #000000; font-weight: bold;">删除文件</button>
+              </div>
+            </div>
+            <div style="text-align: center; margin-top: 20px;">
+              <div class="file-upload-wrapper" style="display: inline-block; position: relative;">
+                <input id="file-input" type="file" accept="image/*" style="display: none;" @change="selectFile_img">
+                <label for="file-input" class="custom-file-upload"
+                  style="padding: 10px 20px; background-color: #FE6F07; color: #FFFFFF; font-weight: bold; text-transform: uppercase; border-radius: 4px; border: 2px solid #FE6F07; cursor: pointer; transition: background-color 0.3s, border-color 0.3s; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); width: 150px; height: 45px; line-height: 25px;">
+                  选择文件
+                </label>
+                <!-- 上传按钮 -->
+                <button id="upload-button" class="custom-upload-button"
+                  style="margin-left: 10px; width: 110px; height: 42px; background-color: #FE6F07; color: #FFFFFF; border: none; border-radius: 4px; font-weight: bold; transition: background-color 0.3s; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); line-height: 25px;"
+                  @click="uploadFile">
+                  上传文件
+                </button>
+                <!-- 预览图片的容器 -->
+                <div v-if="selectedFile" style="margin-top: 10px;">
+                  <img :src="selectedFile_img" style="width: 200px; height: auto;">
+                  <span class="file-name"
+                    style="position: absolute; bottom: -20px; left: 0; width: 100%; background-color: #ffffff00; color: #000000; text-align: center; padding: 5px 0; transition: bottom 0.3s;">{{ selectedFile.name }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!--文本隐写部分-->
+          <div v-if="selectedDemo === 3">
+            <!-- 文本输入区域 -->
+            <div style="margin-bottom: 20px;">
+              <textarea v-model="textInput" placeholder="Enter text here..." rows="5"
+                style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; background-color: #fff; box-sizing: border-box;"></textarea>
+              <div style="display: flex; justify-content: center; margin-bottom: 20px;"></div>
+            </div>
+            <!-- 文件选择区域 -->
+            <div style="display: flex; align-items: center; margin-bottom: 20px;">
+              <div style="flex: 1; margin-right: 10px;">
+                <label for="textSteganographyFile"
+                  style="display: block; padding: 10px; cursor: pointer; background-color: #343434; color: #ffffff; border-radius: 4px; text-align: center;">选择原文</label>
+                <input type="file" id="textSteganographyFile" style="display: none;" @change="handleFileSelection"
+                  accept=".txt" v-if="inputType === 'file'" />
+                <p v-if="selectedFile && inputType === 'file'" style="margin: 0; padding: 10px 0; color: #666;">Selected
+                  File: {{ selectedFile.name }}</p>
+              </div>
+              <div style="flex: 1; margin-left: 10px;">
+                <button @click="toggleInputType('file')"
+                  style="padding: 10px 0; width: 100%; background-color: #e0e0e0; color: #333; border: none; border-radius: 4px; text-align: center; cursor: pointer; transition: background-color 0.3s;"
+                  v-if="inputType === 'text'">切换到文件模式</button>
+                <button @click="toggleInputType('text')"
+                  style="padding: 10px 0; width: 100%; background-color: #e0e0e0; color: #333; border: none; border-radius: 4px; text-align: center; cursor: pointer; transition: background-color 0.3s;"
+                  v-if="inputType === 'file'">切换到文本模式</button>
+              </div>
+            </div>
+            <div style="display: flex; justify-content: center; margin-bottom: 20px;">
+              <button @click="textEncoding"
+                style="padding: 10px; width: 240px; height: 60px; background-color: #4CAF50; color: #fff; border: none; border-radius: 4px; font-size: 16px; cursor: pointer; transition: background-color 0.3s;">文本隐写</button>
+            </div>
+            <!-- 选择含密图像和选择密钥区域 -->
+            <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
+              <div style="flex: 1; margin-right: 10px;">
+                <label for="selectedImage"
+                  style="display: block; padding: 10px; cursor: pointer; background-color: #343434; color: #ffffff; border-radius: 4px; text-align: center;">选择含密图像</label>
+                <input type="file" id="selectedImage" style="display: none;" @change="handleStegSelection" />
+                <p v-if="selectedImage" style="margin: 0; padding: 10px 0; color: #666;">Selected
+                  Image:{{ selectedImage.name }}</p>
+              </div>
+              <div style="flex: 1; margin-left: 10px;">
+                <label for="selectedKey"
+                  style="display: block; padding: 10px; cursor: pointer; background-color: #343434; color: #ffffff; border-radius: 4px; text-align: center;">选择密钥</label>
+                <input type="file" id="selectedKey" style="display: none;" @change="handleKeySelection" />
+                <p v-if="selectedKey" style="margin: 0; padding: 10px 0; color: #666;">Selected Key:
+                  {{ selectedKey.name }}
+                </p>
+                <div style="margin-top: 10px;" v-if="decryptedText">
+                </div>
+              </div>
+            </div>
+            <textarea readonly
+              style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; background-color: #fff; box-sizing: border-box; height: 200px;">解密后的文本：{{ decryptedText }}</textarea>
+            <div style="display: flex; justify-content: center; margin-bottom: 20px;">
+              <button @click="textDecoding"
+                style="padding: 10px; width: 240px; height: 60px; background-color: #4CAF50; color: #fff; border: none; border-radius: 4px; font-size: 16px; cursor: pointer; transition: background-color 0.3s;">文本解密</button>
+            </div>
+          </div>
+
+        </div>
+        <div class="buttons" :class="{ 'at-bottom': selectedDemo }" style="display: flex; align-items: center;">
+          <button @click="changeSelectedDemo(1)" style="font-size:large; border: 1px solid #dcdcdc; box-shadow: 0 3px 3px rgba(0, 0, 0, 0.2); border-radius: 4px; text-transform: uppercase; 
+          color: #000000; font-weight: bold; padding: 0 15px; line-height: 28px;">图像隐写</button>
+          <button @click="changeSelectedDemo(2)" style="font-size:large; border: 1px solid #dcdcdc; box-shadow: 0 3px 3px rgba(0, 0, 0, 0.2); border-radius: 4px; text-transform: uppercase; 
+          color: #000000; font-weight: bold; padding: 0 15px; line-height: 28px;">图像管理</button>
+          <button @click="changeSelectedDemo(3)" style="font-size:large; border: 1px solid #dcdcdc; box-shadow: 0 3px 3px rgba(0, 0, 0, 0.2); border-radius: 4px; text-transform: uppercase; 
+          color: #000000; font-weight: bold; padding: 0 15px; line-height: 28px;">文本隐写</button>
+        </div>
+
+        <footer>
+          <div class="bottom-bar">
+            <p>基于HiNet的图像隐写工具</p>
+          </div>
+        </footer>
+
+      </div>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+  <script src="scripts.js"></script>
+</body>
+
+</html>
